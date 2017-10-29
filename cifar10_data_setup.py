@@ -42,15 +42,15 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	"""Writes MNIST image/label vectors into parallelized files on HDFS"""
 	# load MNIST gzip into memory
 #	with open(input_images, 'rb') as f:
-	images, labels = numpy.array(cifar10_2.distorted_inputs(input_images))
+	images, labels = cifar10_2.distorted_inputs(input_images)
 
 	shape = images.shape
 	print("images.shape: {0}".format(shape))          # 60000 x 28 x 28
 	print("labels.shape: {0}".format(labels.shape))   # 60000 x 10
 
 	# create RDDs of vectors
-	imageRDD = sc.parallelize(tf.Session().run(images), num_partitions)
-	labelRDD = sc.parallelize(tf.Session().run(labels), num_partitions)
+	imageRDD = sc.parallelize(images, num_partitions)
+	labelRDD = sc.parallelize(labels, num_partitions)
 
 	output_images = output + "/images"
 	output_labels = output + "/labels"
