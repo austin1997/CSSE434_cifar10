@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
 	if not args.read:
 		# Note: these files are inside the mnist.zip file
-		writeMNIST(sc, "cifar10/dataset", args.output + "/train", args.format, args.num_partitions)
+		writeMNIST(sc, "dataset/", args.output + "/train", args.format, args.num_partitions)
 #		writeMNIST(sc, "mnist/t10k-images-idx3-ubyte.gz", "mnist/t10k-labels-idx1-ubyte.gz", args.output + "/test", args.format, args.num_partitions)
 
 	if args.read or args.verify:
