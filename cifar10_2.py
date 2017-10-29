@@ -38,7 +38,7 @@ import tarfile
 from six.moves import urllib
 import tensorflow as tf
 
-import cifar10_input
+import cifar10_input2
 
 FLAGS = tf.app.flags.FLAGS
 
