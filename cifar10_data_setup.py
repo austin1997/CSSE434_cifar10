@@ -10,7 +10,7 @@ import numpy
 import tensorflow as tf
 from array import array
 #from tensorflow.contrib.learn.python.learn.datasets import mnist
-import cifar_10_2
+import cifar10_2
 
 def toTFExample(image, label):
 	"""Serializes an image/label as a TFExample byte string"""
