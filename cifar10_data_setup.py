@@ -42,7 +42,7 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	"""Writes MNIST image/label vectors into parallelized files on HDFS"""
 	# load MNIST gzip into memory
 #	with open(input_images, 'rb') as f:
-	images, labels = numpy.array(cifar_10_2.distorted_inputs(input_images))
+	images, labels = numpy.array(cifar10_2.distorted_inputs(input_images))
 
 	shape = images.shape
 	print("images.shape: {0}".format(shape))          # 60000 x 28 x 28
