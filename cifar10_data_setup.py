@@ -49,7 +49,7 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	print("labels.shape: {0}".format(labels.shape))   # 60000 x 10
 
 	# create RDDs of vectors
-	imageRDD = sc.parallelize(images.reshape(shape[0], shape[1] * shape[2]), num_partitions)
+	imageRDD = sc.parallelize(images, num_partitions)
 	labelRDD = sc.parallelize(labels, num_partitions)
 
 	output_images = output + "/images"
