@@ -88,8 +88,8 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	shape = mergedImage.shape
 	b = numpy.zeros((shape[0], 10))
 	c = numpy.zeros((10000, 10))
-	b[numpy.arrage(shape[0]), mergedLabel] = 1
-	c[numpy.arrage(10000), labels6] = 1
+	b[numpy.arange(shape[0]), mergedLabel] = 1
+	c[numpy.arange(10000), labels6] = 1
 	
 	print("images.shape: {0}".format(shape))          # 60000 x 28 x 28
 	print("labels.shape: {0}".format(b.shape))   # 60000 x 10
