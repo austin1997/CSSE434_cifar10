@@ -7,10 +7,12 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy
+import os
 import tensorflow as tf
 from array import array
 #from tensorflow.contrib.learn.python.learn.datasets import mnist
 import cifar10_2
+import cPickle
 
 def toTFExample(image, label):
 	"""Serializes an image/label as a TFExample byte string"""
@@ -37,20 +39,59 @@ def toCSV(vec):
 def fromCSV(s):
 	"""Converts a CSV string to a vector/array"""
 	return [float(x) for x in s.split(',') if len(s) > 0]
+	
+def unpickle(file):
+    
+    with open(file, 'rb') as fo:
+        dict = cPickle.load(fo)
+    return dict
 
 def writeMNIST(sc, input_images, output, format, num_partitions):
 	"""Writes MNIST image/label vectors into parallelized files on HDFS"""
 	# load MNIST gzip into memory
 #	with open(input_images, 'rb') as f:
-	images, labels = cifar10_2.distorted_inputs(input_images)
-
-	shape = images.shape
+#	images, labels = cifar10_2.distorted_inputs(input_images)
+	dict1 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_1')
+	dict2 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_2')
+	dict3 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_3')
+	dict4 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_4')
+	dict5 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_5')
+	dict6 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'test_batch')
+#	dictMerged = dict1.copy()
+#	dictMerged.update(dict2)
+#	dictMerged.update(dict3)
+#	dictMerged.update(dict4)
+#	dictMerged.update(dict5)
+	
+	images1 = dict1['data']
+	labels1 = dict1['labels']
+	images2 = dict2['data']
+	labels2 = dict2['labels']
+	images3 = dict3['data']
+	labels3 = dict3['labels']
+	images4 = dict4['data']
+	labels4 = dict4['labels']
+	images5 = dict5['data']
+	labels5 = dict5['labels']
+	images6 = dict6['data']
+	labels6 = dict6['labels']
+	
+	mergedImage = numpy.vstack((images1, images2))
+	mergedImage = numpy.vstack((mergedImage, images3))
+	mergedImage = numpy.vstack((mergedImage, images4))
+	mergedImage = numpy.vstack((mergedImage, images5))
+	mergedLabel = numpy.vstack((labels1, labels2))
+	mergedLabel = numpy.vstack((mergedLabel, labels3))
+	mergedLabel = numpy.vstack((mergedLabel, labels4))
+	mergedLabel = numpy.vstack((mergedLabel, labels5))
+	
+	shape = mergedImage.shape
 	print("images.shape: {0}".format(shape))          # 60000 x 28 x 28
-	print("labels.shape: {0}".format(labels.shape))   # 60000 x 10
+	print("labels.shape: {0}".format(mergedLabel.shape))   # 60000 x 10
 
 	
 	# create RDDs of vectors
-#	imageRDD = sc.parallelize(images.eval(), num_partitions)
+	imageRDD = sc.parallelize(images.reshape(shape[0], shape[1] * shape[2]), num_partitions)
 	labelRDD = sc.parallelize(labels, num_partitions)
 
 	output_images = output + "/images"
