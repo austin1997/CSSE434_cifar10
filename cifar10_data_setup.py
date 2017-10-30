@@ -94,16 +94,25 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	imageRDD = sc.parallelize(mergedImage.reshape(shape[0], 32, 32, 3), num_partitions)
 	labelRDD = sc.parallelize(mergedLabel, num_partitions)
 
-	output_images = output + "/images"
-	output_labels = output + "/labels"
+	output_train_images = args.output + "/train" + "/images"
+	output_train_labels = args.output + "/train" + "/labels"
+	
+	# create RDDs of vectors
+	imageRDD = sc.parallelize(images6.reshape(-1, 32, 32, 3), num_partitions)
+	labelRDD = sc.parallelize(labels6, num_partitions)
+
+	output_test_images = args.output + "/test" + "/images"
+	output_test_labels = args.output + "/test" + "/labels"
 
 	# save RDDs as specific format
 	if format == "pickle":
 		imageRDD.saveAsPickleFile(output_images)
 		labelRDD.saveAsPickleFile(output_labels)
 	elif format == "csv":
-		imageRDD.map(toCSV).saveAsTextFile(output_images)
-		labelRDD.map(toCSV).saveAsTextFile(output_labels)
+		imageRDD.map(toCSV).saveAsTextFile(output_train_images)
+		labelRDD.map(toCSV).saveAsTextFile(output_train_labels)
+		imageRDD.map(toCSV).saveAsTextFile(output_test_images)
+		labelRDD.map(toCSV).saveAsTextFile(output_test_labels)
 	elif format == "csv2":
 		imageRDD.map(toCSV).zip(labelRDD).map(lambda x: str(x[1]) + "|" + x[0]).saveAsTextFile(output)
 	else: # format == "tfr":
@@ -172,7 +181,7 @@ if __name__ == "__main__":
 	if not args.read:
 		# Note: these files are inside the mnist.zip file
 		writeMNIST(sc, "dataset/", args.output + "/train", args.format, args.num_partitions)
-#		writeMNIST(sc, "mnist/t10k-images-idx3-ubyte.gz", "mnist/t10k-labels-idx1-ubyte.gz", args.output + "/test", args.format, args.num_partitions)
+		writeMNIST(sc, "dataset/", args.output + "/test", args.format, args.num_partitions)
 
 	if args.read or args.verify:
 		readMNIST(sc, args.output + "/train", args.format)
