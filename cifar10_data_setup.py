@@ -51,7 +51,7 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	
 	# create RDDs of vectors
 #	imageRDD = sc.parallelize(images.eval(), num_partitions)
-	labelRDD = sc.parallelize(labels.eval(), num_partitions)
+	labelRDD = sc.parallelize(labels, num_partitions)
 
 	output_images = output + "/images"
 	output_labels = output + "/labels"
