@@ -51,12 +51,12 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	# load MNIST gzip into memory
 #	with open(input_images, 'rb') as f:
 #	images, labels = cifar10_2.distorted_inputs(input_images)
-	dict1 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_1')
-	dict2 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_2')
-	dict3 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_3')
-	dict4 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_4')
-	dict5 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'data_batch_5')
-	dict6 = unpickle(os.path.join(input_images), 'cifar-10-batches-py', 'test_batch')
+	dict1 = unpickle(os.path.join(input_images, 'cifar-10-batches-py', 'data_batch_1'))
+	dict2 = unpickle(os.path.join(input_images, 'cifar-10-batches-py', 'data_batch_2'))
+	dict3 = unpickle(os.path.join(input_images, 'cifar-10-batches-py', 'data_batch_3'))
+	dict4 = unpickle(os.path.join(input_images, 'cifar-10-batches-py', 'data_batch_4'))
+	dict5 = unpickle(os.path.join(input_images, 'cifar-10-batches-py', 'data_batch_5'))
+	dict6 = unpickle(os.path.join(input_images, 'cifar-10-batches-py', 'test_batch'))
 #	dictMerged = dict1.copy()
 #	dictMerged.update(dict2)
 #	dictMerged.update(dict3)
@@ -91,7 +91,7 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 
 	
 	# create RDDs of vectors
-	imageRDD = sc.parallelize(images.reshape(shape[0], shape[1] * shape[2]), num_partitions)
+	imageRDD = sc.parallelize(images.reshape(shape[0], 24 * 24), num_partitions)
 	labelRDD = sc.parallelize(labels, num_partitions)
 
 	output_images = output + "/images"
