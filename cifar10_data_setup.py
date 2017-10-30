@@ -80,10 +80,10 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	mergedImage = numpy.vstack((mergedImage, images3))
 	mergedImage = numpy.vstack((mergedImage, images4))
 	mergedImage = numpy.vstack((mergedImage, images5))
-	mergedLabel = numpy.vstack((labels1, labels2))
-	mergedLabel = numpy.vstack((mergedLabel, labels3))
-	mergedLabel = numpy.vstack((mergedLabel, labels4))
-	mergedLabel = numpy.vstack((mergedLabel, labels5))
+	mergedLabel = numpy.hstack((labels1, labels2))
+	mergedLabel = numpy.hstack((mergedLabel, labels3))
+	mergedLabel = numpy.hstack((mergedLabel, labels4))
+	mergedLabel = numpy.hstack((mergedLabel, labels5))
 
 	shape = mergedImage.shape
 	b = numpy.zeros((shape[0], 10))
