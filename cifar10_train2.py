@@ -41,35 +41,46 @@ import sys
 import time
 
 def main_fun(argv, ctx):
+  from tensorflowonspark import TFNode
+  from datetime import datetime
   import tensorflow as tf
-  import cifar10_2
-
-  sys.argv = argv
-  FLAGS = tf.app.flags.FLAGS
-  tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
-                             """Directory where to write event logs """
-                             """and checkpoint.""")
-  tf.app.flags.DEFINE_integer('max_steps', 1000000,
-                              """Number of batches to run.""")
-  tf.app.flags.DEFINE_boolean('log_device_placement', False,
-                              """Whether to log device placement.""")
-  tf.app.flags.DEFINE_boolean('rdma', False, """Whether to use rdma.""")
+  import cifar10_2 as cifar10
+  import numpy
+  import time
+  import math
   
   worker_num = ctx.worker_num
   job_name = ctx.job_name
   task_index = ctx.task_index
   cluster_spec = ctx.cluster_spec
+  
+  batch_size   = args.batch_size
 
   # cifar10.maybe_download_and_extract()
 #  if tf.gfile.Exists(FLAGS.train_dir):
 #    tf.gfile.DeleteRecursively(FLAGS.train_dir)
 #  tf.gfile.MakeDirs(FLAGS.train_dir)
-
+  
   # Delay PS nodes a bit, since workers seem to reserve GPUs more quickly/reliably (w/o conflict)
   if job_name == "ps":
     time.sleep((worker_num + 1) * 5)
 
   cluster_spec, server = TFNode.start_cluster_server(ctx, 1, FLAGS.rdma)
+  
+  def feed_dict(batch):
+    # Convert from [(images, labels)] to two numpy arrays of the proper type
+    images = []
+    labels = []
+    for item in batch:
+      images.append(item[0])
+      labels.append(item[1])
+    xs = numpy.array(images)
+    xs = xs.astype(numpy.float32)
+    xs = xs/255.0
+    ys = numpy.array(labels)
+    ys = ys.astype(numpy.uint8)
+    return (xs, ys)
+  
   
   if job_name == "ps":
     server.join()
@@ -81,7 +92,7 @@ def main_fun(argv, ctx):
       global_step = tf.contrib.framework.get_or_create_global_step()
 
       # Get images and labels for CIFAR-10.
-      images, labels = cifar10.distorted_inputs()
+#      images, labels = cifar10.distorted_inputs()
 
       # Build a Graph that computes the logits predictions from the
       # inference model.

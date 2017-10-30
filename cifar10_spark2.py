@@ -19,7 +19,7 @@ import time
 from datetime import datetime
 
 from tensorflowonspark import TFCluster
-import mnist_dist2
+import cifar10_train2
 
 sc = SparkContext(conf=SparkConf().setAppName("mnist_spark"))
 executors = sc._conf.get("spark.executor.instances")
@@ -67,7 +67,7 @@ else:
   print("zipping images and labels")
   dataRDD = images.zip(labels)
 
-cluster = TFCluster.run(sc, mnist_dist2.map_fun, args, args.cluster_size, num_ps, args.tensorboard, TFCluster.InputMode.SPARK)
+cluster = TFCluster.run(sc, cifar10_train2.main_fun, args, args.cluster_size, num_ps, args.tensorboard, TFCluster.InputMode.SPARK)
 if args.mode == "train":
   cluster.train(dataRDD, args.epochs)
 else:

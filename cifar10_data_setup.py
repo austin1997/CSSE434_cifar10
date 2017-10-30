@@ -64,17 +64,17 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 #	dictMerged.update(dict5)
 	
 	images1 = dict1['data']
-	labels1 = dict1['labels']
+	labels1 = numpy.array(dict1['labels'])
 	images2 = dict2['data']
-	labels2 = dict2['labels']
+	labels2 = numpy.array(dict2['labels'])
 	images3 = dict3['data']
-	labels3 = dict3['labels']
+	labels3 = numpy.array(dict3['labels'])
 	images4 = dict4['data']
-	labels4 = dict4['labels']
+	labels4 = numpy.array(dict4['labels'])
 	images5 = dict5['data']
-	labels5 = dict5['labels']
+	labels5 = numpy.array(dict5['labels'])
 	images6 = dict6['data']
-	labels6 = dict6['labels']
+	labels6 = numpy.array(dict6['labels'])
 	
 	mergedImage = numpy.vstack((images1, images2))
 	mergedImage = numpy.vstack((mergedImage, images3))
@@ -84,22 +84,27 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 	mergedLabel = numpy.vstack((mergedLabel, labels3))
 	mergedLabel = numpy.vstack((mergedLabel, labels4))
 	mergedLabel = numpy.vstack((mergedLabel, labels5))
-	
+
 	shape = mergedImage.shape
+	b = numpy.zeros((shape[0], 10))
+	c = numpy.zeros((10000, 10))
+	b[numpy.arrage(shape[0]), mergedLabel] = 1
+	c[numpy.arrage(10000), labels6] = 1
+	
 	print("images.shape: {0}".format(shape))          # 60000 x 28 x 28
-	print("labels.shape: {0}".format(mergedLabel.shape))   # 60000 x 10
+	print("labels.shape: {0}".format(b.shape))   # 60000 x 10
 
 	
 	# create RDDs of vectors
 	imageRDD = sc.parallelize(mergedImage.reshape(shape[0], 32, 32, 3), num_partitions)
-	labelRDD = sc.parallelize(mergedLabel, num_partitions)
+	labelRDD = sc.parallelize(b, num_partitions)
 
 	output_train_images = args.output + "/train" + "/images"
 	output_train_labels = args.output + "/train" + "/labels"
 	
 	# create RDDs of vectors
 	imageRDD = sc.parallelize(images6.reshape(-1, 32, 32, 3), num_partitions)
-	labelRDD = sc.parallelize(labels6, num_partitions)
+	labelRDD = sc.parallelize(c, num_partitions)
 
 	output_test_images = args.output + "/test" + "/images"
 	output_test_labels = args.output + "/test" + "/labels"
