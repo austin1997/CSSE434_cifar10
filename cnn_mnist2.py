@@ -19,20 +19,20 @@ def map_fun(args, ctx):
   import numpy
   import tensorflow as tf
   import time
-  import cifar10_2
 
   worker_num = ctx.worker_num
   job_name = ctx.job_name
   task_index = ctx.task_index
   cluster_spec = ctx.cluster_spec
 
-  IMAGE_PIXELS=32
+  IMAGE_PIXELS=28
 
   # Delay PS nodes a bit, since workers seem to reserve GPUs more quickly/reliably (w/o conflict)
   if job_name == "ps":
     time.sleep((worker_num + 1) * 5)
 
   # Parameters
+  hidden_units = 128
   batch_size   = args.batch_size
 
   # Get TF cluster and server instances
@@ -63,21 +63,60 @@ def map_fun(args, ctx):
         cluster=cluster)):
 
       print("In a TFCluster.")
-      global_step = tf.contrib.framework.get_or_create_global_step()
+
       # Input placeholders
       with tf.name_scope('input'):
-        x = tf.placeholder(tf.float32, [None, IMAGE_PIXELS, IMAGE_PIXELS, 3], name='x-input')
+        x = tf.placeholder(tf.float32, [None, 784], name='x-input')
         y_ = tf.placeholder(tf.float32, [None, 10], name='y-input') 
-        tf.summary.image('input', x, 10)
       
-      logits = cifar10_2.inference(x)
-      
-      # Calculate loss.
-      loss = cifar10.loss(logits, labels)
-	  
-	  # Build a Graph that trains the model with one batch of examples and
-      # updates the model parameters.
-      train_op = cifar10_2.train(loss, global_step)
+      with tf.name_scope('input_reshape'):
+        image_shaped_input = tf.reshape(x, [-1, 28, 28, 1])
+        tf.summary.image('input', image_shaped_input, 10)	
+
+      # We can't initialize these variables to 0 - the network will get stuck.
+      def weight_variable(shape):
+        """Create a weight variable with appropriate initialization."""
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        return tf.Variable(initial)
+
+      def bias_variable(shape):
+        """Create a bias variable with appropriate initialization."""
+        initial = tf.constant(0.1, shape=shape)
+        return tf.Variable(initial)
+
+      def variable_summaries(var):
+        """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+        with tf.name_scope('summaries'):
+          mean = tf.reduce_mean(var)
+          tf.summary.scalar('mean', mean)
+          with tf.name_scope('stddev'):
+            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+          tf.summary.scalar('stddev', stddev)
+          tf.summary.scalar('max', tf.reduce_max(var))
+          tf.summary.scalar('min', tf.reduce_min(var))
+          tf.summary.histogram('histogram', var)	
+
+      def nn_layer(input_tensor, input_dim, output_dim, layer_name, act=tf.nn.relu):
+        """Reusable code for making a simple neural net layer.
+        It does a matrix multiply, bias add, and then uses ReLU to nonlinearize.
+        It also sets up name scoping so that the resultant graph is easy to read,
+        and adds a number of summary ops.
+        """
+        # Adding a name scope ensures logical grouping of the layers in the graph.
+        with tf.name_scope(layer_name):
+          # This Variable will hold the state of the weights for the layer
+          with tf.name_scope('weights'):
+            weights = weight_variable([input_dim, output_dim])
+            variable_summaries(weights)
+          with tf.name_scope('biases'):
+            biases = bias_variable([output_dim])
+            variable_summaries(biases)
+          with tf.name_scope('Wx_plus_b'):
+            preactivate = tf.matmul(input_tensor, weights) + biases
+            tf.summary.histogram('pre_activations', preactivate)
+          activations = act(preactivate, name='activation')
+          tf.summary.histogram('activations', activations)
+          return activations
 
       hidden1 = nn_layer(x, 784, 500, 'layer1')
 	  
@@ -126,6 +165,14 @@ def map_fun(args, ctx):
 	  
 
 
+      
+
+      global_step = tf.Variable(0)
+
+
+
+
+
 
 #      saver = tf.train.Saver()
       init_op = tf.global_variables_initializer()
@@ -161,7 +208,7 @@ def map_fun(args, ctx):
       print("{0} session ready".format(datetime.now().isoformat()))
 
       # Loop until the supervisor shuts down or 1000000 steps have completed.
-      step = 0
+      step = -1
       tf_feed = TFNode.DataFeed(ctx.mgr, args.mode == "train")
       while not sv.should_stop() and not tf_feed.should_stop() and step < args.steps:
         # Run a training step asynchronously.
