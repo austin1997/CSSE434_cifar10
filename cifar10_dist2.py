@@ -69,6 +69,22 @@ def map_fun(args, ctx):
         images = tf.placeholder(tf.float32, [None, IMAGE_PIXELS, IMAGE_PIXELS, 3], name='x-input')
         y_ = tf.placeholder(tf.float32, [None, 10], name='y-input') 
         tf.summary.image('input', x, 10)
+        
+      def _activation_summary(x):
+        """Helper to create summaries for activations.
+        Creates a summary that provides a histogram of activations.
+        Creates a summary that measures the sparsity of activations.
+        Args:
+          x: Tensor
+        Returns:
+          nothing
+        """
+        # Remove 'tower_[0-9]/' from the name in case this is a multi-GPU training
+        # session. This helps the clarity of presentation on tensorboard.
+        tensor_name = re.sub('%s_[0-9]*/' % TOWER_NAME, '', x.op.name)
+        tf.summary.histogram(tensor_name + '/activations', x)
+        tf.summary.scalar(tensor_name + '/sparsity',
+                                           tf.nn.zero_fraction(x))
       
       def _variable_on_cpu(name, shape, initializer):
         """Helper to create a Variable stored on CPU memory.
@@ -186,14 +202,14 @@ def map_fun(args, ctx):
 
       # The total loss is defined as the cross entropy loss plus all of the weight
       # decay terms (L2 loss).
-	  total_loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
-	  
-	  train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
-	  correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y_, 1))
-	  accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-	  label = tf.argmax(y_, 1, name="label")
+      total_loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
+      
+      train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
+      correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y_, 1))
+      accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+      label = tf.argmax(y_, 1, name="label")
       prediction = tf.argmax(logits, 1,name="prediction")  
-	  
+      
           
 
 
@@ -240,7 +256,7 @@ def map_fun(args, ctx):
       # Loop until the supervisor shuts down or 1000000 steps have completed.
       step = -1
       tf_feed = TFNode.DataFeed(ctx.mgr, args.mode == "train")
-	  tf_feed_test = TFNode.DataFeed(ctx.mgr, args.mode != "train")
+      tf_feed_test = TFNode.DataFeed(ctx.mgr, args.mode != "train")
       while not sv.should_stop() and not tf_feed.should_stop() and step < args.steps:
         # Run a training step asynchronously.
         # See `tf.train.SyncReplicasOptimizer` for additional details on how to
@@ -248,7 +264,7 @@ def map_fun(args, ctx):
         step = step + 1
         # using feed_dict
         batch_xs, batch_ys = feed_dict(tf_feed.next_batch(batch_size))
-		test_xs, test_ys = feed_dict(tf_feed_test.next_batch(batch_size))
+        test_xs, test_ys = feed_dict(tf_feed_test.next_batch(batch_size))
         feed = {x: batch_xs, y_: batch_ys, keep_prob: 0.9}
 
         if len(batch_xs) > 0:
