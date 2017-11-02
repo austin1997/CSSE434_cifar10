@@ -163,7 +163,7 @@ def map_fun(args, ctx):
       # local3
       with tf.variable_scope('local3') as scope:
         # Move everything into depth so we can perform a single matrix multiply.
-        reshape = tf.reshape(pool2, [FLAGS.batch_size, -1])
+        reshape = tf.reshape(pool2, [batch_size, -1])
         dim = reshape.get_shape()[1].value
         weights = _variable_with_weight_decay('weights', shape=[dim, 384],
                                               stddev=0.04, wd=0.004)
@@ -265,14 +265,14 @@ def map_fun(args, ctx):
         # using feed_dict
         batch_xs, batch_ys = feed_dict(tf_feed.next_batch(batch_size))
         test_xs, test_ys = feed_dict(tf_feed_test.next_batch(batch_size))
-        feed = {x: batch_xs, y_: batch_ys, keep_prob: 0.9}
+        feed = {x: batch_xs, y_: batch_ys}
 
         if len(batch_xs) > 0:
           if args.mode == "train":
             summary, _, _ = sess.run([merged, train_step, global_step], feed_dict=feed)
             # print accuracy and save model checkpoint to HDFS every 100 steps
             if (step % 100 == 0):
-              labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys, keep_prob: 1.0})
+              labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys})
               for l,p in zip(labels,preds):
                 print("{0} step: {1} accuracy: {2}, Label: {3}, Prediction: {4}".format(datetime.now().isoformat(), step, acc, l, p))
               
