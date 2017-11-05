@@ -68,7 +68,7 @@ def map_fun(args, ctx):
       with tf.name_scope('input'):
         images = tf.placeholder(tf.float32, [None, IMAGE_PIXELS, IMAGE_PIXELS, 3], name='x-input')
         y_ = tf.placeholder(tf.float32, [None, 10], name='y-input') 
-        tf.summary.image('input', x, 10)
+        tf.summary.image('input', images, 10)
         
       def _activation_summary(x):
         """Helper to create summaries for activations.
