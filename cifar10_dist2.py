@@ -65,7 +65,7 @@ def map_fun(args, ctx):
         cluster=cluster)):
 
       print("In a TFCluster.")
-      global_step = tf.train.get_or_create_global_step()
+#      global_step = tf.train.get_or_create_global_step()
       # Input placeholders
       with tf.name_scope('input'):
         x = tf.placeholder(tf.float32, [None, IMAGE_PIXELS*IMAGE_PIXELS*3], name='x-input')
@@ -226,7 +226,8 @@ def map_fun(args, ctx):
       # Merge all the summaries and write them out to
       # /tmp/tensorflow/mnist/logs/mnist_with_summaries (by default)
       merged = tf.summary.merge_all()
-#      global_step = tf.Variable(0)
+      global_step = tf.Variable(0)
+      inc = tf.assign_add(global_step, 1, name='increment')
 #      saver = tf.train.Saver()
       init_op = tf.global_variables_initializer()
 
@@ -260,7 +261,7 @@ def map_fun(args, ctx):
     # a checkpoint, and closing when done or an error occurs.
     with sv.managed_session(server.target) as sess:
       print("{0} session ready".format(datetime.now().isoformat()))
-
+	  sess.run(inc)
       # Loop until the supervisor shuts down or 1000000 steps have completed.
       step = -1
       tf_feed = TFNode.DataFeed(ctx.mgr, args.mode == "train")
