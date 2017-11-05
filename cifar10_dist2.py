@@ -27,6 +27,7 @@ def map_fun(args, ctx):
   cluster_spec = ctx.cluster_spec
   NUM_CLASSES = 10
   IMAGE_PIXELS=32
+  TOWER_NAME = 'tower'
 
   # Delay PS nodes a bit, since workers seem to reserve GPUs more quickly/reliably (w/o conflict)
   if job_name == "ps":
