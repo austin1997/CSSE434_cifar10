@@ -242,7 +242,7 @@ def map_fun(args, ctx):
                                logdir=logdir,
                                init_op=init_op,
                                summary_op=None,
-                               summary_writer=None,
+                               summary_writer=summary_writer,
                                global_step=global_step,
                                stop_grace_secs=300,
                                saver = None
@@ -261,7 +261,6 @@ def map_fun(args, ctx):
     # a checkpoint, and closing when done or an error occurs.
     with sv.managed_session(server.target) as sess:
       print("{0} session ready".format(datetime.now().isoformat()))
-      sess.run(inc)
       # Loop until the supervisor shuts down or 1000000 steps have completed.
       step = -1
       tf_feed = TFNode.DataFeed(ctx.mgr, args.mode == "train")
@@ -285,7 +284,7 @@ def map_fun(args, ctx):
         print (len(batch_xs) > 0)
         if len(batch_xs) > 0:
           if args.mode == "train":
-            summary, _ = sess.run([merged, train_step], feed_dict=feed)
+            summary, _,_ = sess.run([merged, train_step, inc], feed_dict=feed)
             # print accuracy and save model checkpoint to HDFS every 100 steps
             if (step % 100 == 0):
               labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys})
