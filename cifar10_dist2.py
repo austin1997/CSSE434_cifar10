@@ -261,7 +261,7 @@ def map_fun(args, ctx):
     # a checkpoint, and closing when done or an error occurs.
     with sv.managed_session(server.target) as sess:
       print("{0} session ready".format(datetime.now().isoformat()))
-	  sess.run(inc)
+      sess.run(inc)
       # Loop until the supervisor shuts down or 1000000 steps have completed.
       step = -1
       tf_feed = TFNode.DataFeed(ctx.mgr, args.mode == "train")
