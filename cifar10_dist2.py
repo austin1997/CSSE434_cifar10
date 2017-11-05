@@ -265,10 +265,12 @@ def map_fun(args, ctx):
       step = -1
       tf_feed = TFNode.DataFeed(ctx.mgr, args.mode == "train")
       tf_feed_test = TFNode.DataFeed(ctx.mgr, args.mode != "train")
-      while not sv.should_stop() and not tf_feed.should_stop() and step < args.steps:
+      while step < args.steps:
         # Run a training step asynchronously.
         # See `tf.train.SyncReplicasOptimizer` for additional details on how to
         # perform *synchronous* training.
+        print (sv.should_stop())
+        print (tf_feed.should_stop())
         step = step + 1
         print (step)
         temp = sess.run(global_step)
