@@ -280,7 +280,7 @@ def map_fun(args, ctx):
           if args.mode == "train":
             summary, _, _ = sess.run([merged, train_step, global_step], feed_dict=feed)
             # print accuracy and save model checkpoint to HDFS every 100 steps
-            if (step % 100 == 0 || global_step % 100 == 0):
+            if (step % 100 == 0 or global_step % 100 == 0):
               labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys})
               for l,p in zip(labels,preds):
                 print("{0} step: {1} accuracy: {2}, Label: {3}, Prediction: {4}".format(datetime.now().isoformat(), step, acc, l, p))
