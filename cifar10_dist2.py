@@ -199,8 +199,8 @@ def map_fun(args, ctx):
           
       # Calculate the average cross entropy loss across the batch.
 #      labels = tf.reshape(y_, [100, 10])
-#      print (labels.shape)
-#      print (logits.shape)
+      print (labels.shape)
+      print (logits.shape)
       labels = tf.cast(y_, tf.int64)
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
           labels=labels, logits=logits, name='cross_entropy_per_example')
