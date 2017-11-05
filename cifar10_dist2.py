@@ -270,7 +270,7 @@ def map_fun(args, ctx):
         # perform *synchronous* training.
         step = step + 1
         print (step)
-		temp = sess.run(global_step)
+        temp = sess.run(global_step)
         print (temp)
         # using feed_dict
         batch_xs, batch_ys = feed_dict(tf_feed.next_batch(batch_size))
