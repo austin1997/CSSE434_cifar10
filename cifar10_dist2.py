@@ -241,9 +241,10 @@ def map_fun(args, ctx):
                                logdir=logdir,
                                init_op=init_op,
                                summary_op=None,
-#                               summary_writer=summary_writer,
+                               summary_writer=None,
                                global_step=global_step,
                                stop_grace_secs=300,
+                               saver = None
 #                               save_model_secs=10
                                )
     else:
