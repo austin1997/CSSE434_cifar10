@@ -169,7 +169,7 @@ def map_fun(args, ctx):
         # Move everything into depth so we can perform a single matrix multiply.
         reshape = tf.reshape(pool2, [batch_size, -1])
         dim = reshape.get_shape()[1].value
-        weights = _variable_with_weight_decay('weights', shape=[dim, 384],
+        weights = _variable_with_weight_decay('weights', shape=[8*8, 384],
                                               stddev=0.04, wd=0.004)
         biases = _variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
         local3 = tf.nn.relu(tf.matmul(reshape, weights) + biases, name=scope.name)
