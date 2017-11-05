@@ -236,73 +236,26 @@ def map_fun(args, ctx):
     print("tensorflow model path: {0}".format(logdir))
     summary_writer = tf.summary.FileWriter("tensorboard_%d" %(worker_num), graph=tf.get_default_graph())
 
-    if args.mode == "train":
-      sv = tf.train.Supervisor(is_chief=(task_index == 0),
-                               logdir=logdir,
-                               init_op=init_op,
-                               summary_op=None,
-                               summary_writer=None,
-                               global_step=global_step,
-                               stop_grace_secs=300,
-                               saver = None
-#                               save_model_secs=10
-                               )
-    else:
-      sv = tf.train.Supervisor(is_chief=(task_index == 0),
-                               logdir=logdir,
-                               summary_op=None,
-                               saver=saver,
-                               global_step=global_step,
-                               stop_grace_secs=300,
-                               save_model_secs=0)
 
     # The supervisor takes care of session initialization, restoring from
     # a checkpoint, and closing when done or an error occurs.
-    with sv.managed_session(server.target) as sess:
+    with tf.Session() as sess:
       print("{0} session ready".format(datetime.now().isoformat()))
 
-      # Loop until the supervisor shuts down or 1000000 steps have completed.
-      step = -1
+    # Loop until the supervisor shuts down or 1000000 steps have completed.
       tf_feed = TFNode.DataFeed(ctx.mgr, args.mode == "train")
+      batch_xs, batch_ys = feed_dict(tf_feed.next_batch(batch_size))
+      feed = {x: batch_xs, y_: batch_ys}
       tf_feed_test = TFNode.DataFeed(ctx.mgr, args.mode != "train")
-      while step < args.steps:
-        # Run a training step asynchronously.
-        # See `tf.train.SyncReplicasOptimizer` for additional details on how to
-        # perform *synchronous* training.
-        print (sv.should_stop())
-        print (tf_feed.should_stop())
-        step = step + 1
-        print (step)
-        temp = sess.run(global_step)
-        print (temp)
-        # using feed_dict
+      test_xs, test_ys = feed_dict(tf_feed_test.next_batch(batch_size))
+      sess.run(tf.global_variables_initializer())
+      for i in range(20000):
         batch_xs, batch_ys = feed_dict(tf_feed.next_batch(batch_size))
-        test_xs, test_ys = feed_dict(tf_feed_test.next_batch(batch_size))
-        feed = {x: batch_xs, y_: batch_ys}
-
-        if len(batch_xs) > 0:
-          if args.mode == "train":
-            summary, _, _ = sess.run([merged, train_step, global_step], feed_dict=feed)
-            # print accuracy and save model checkpoint to HDFS every 100 steps
-            if (step % 100 == 0 or temp % 100 == 0):
-              labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys})
-              for l,p in zip(labels,preds):
-                print("{0} step: {1} accuracy: {2}, Label: {3}, Prediction: {4}".format(datetime.now().isoformat(), temp, acc, l, p))
-              
-#              results = ["{0} Label: {1}, Prediction: {2}".format(datetime.now().isoformat(), l, p) for l,p in zip(labels,preds)]
-#              tf_feed.batch_results(results)
-
-            if sv.is_chief:
-              summary_writer.add_summary(summary, step)
-          else: # args.mode == "inference"
-            labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict=feed)
-
-            results = ["{0} Label: {1}, Prediction: {2}".format(datetime.now().isoformat(), l, p) for l,p in zip(labels,preds)]
-            tf_feed.batch_results(results)
-            print("acc: {0}".format(acc))
-
-      if sv.should_stop() or step >= args.steps:
-        tf_feed.terminate()
+        if i % 100 == 0:
+          labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys})
+          for l,p in zip(labels,preds):
+            print("{0} step: {1} accuracy: {2}, Label: {3}, Prediction: {4}".format(datetime.now().isoformat(), temp, acc, l, p))
+        summary, _ = sess.run([merged, train_step], feed_dict=feed)
 
     # Ask for all the services to stop.
     print("{0} stopping supervisor".format(datetime.now().isoformat()))
