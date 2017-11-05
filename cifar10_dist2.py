@@ -66,8 +66,10 @@ def map_fun(args, ctx):
       global_step = tf.contrib.framework.get_or_create_global_step()
       # Input placeholders
       with tf.name_scope('input'):
-        images = tf.placeholder(tf.float32, [None, IMAGE_PIXELS, IMAGE_PIXELS, 3], name='x-input')
+        x = tf.placeholder(tf.float32, [None, IMAGE_PIXELS*IMAGE_PIXELS*3], name='x-input')
         y_ = tf.placeholder(tf.float32, [None, 10], name='y-input') 
+		images = tf.reshape(x, [-1, IMAGE_PIXELS, IMAGE_PIXELS, 3])
+		print (images.shape)
         tf.summary.image('input', images, 10)
         
       def _activation_summary(x):
