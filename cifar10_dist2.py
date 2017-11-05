@@ -198,7 +198,7 @@ def map_fun(args, ctx):
       logits = softmax_linear
           
       # Calculate the average cross entropy loss across the batch.
-      labels = y_
+      labels = tf.reshape(y_, [100, 10])
       print (labels.shape)
       print (logits.shape)
       labels = tf.cast(labels, tf.int64)
