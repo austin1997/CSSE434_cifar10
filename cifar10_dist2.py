@@ -285,7 +285,7 @@ def map_fun(args, ctx):
             if (step % 100 == 0 or temp % 100 == 0):
               labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys})
               for l,p in zip(labels,preds):
-                print("{0} step: {1} accuracy: {2}, Label: {3}, Prediction: {4}".format(datetime.now().isoformat(), step, acc, l, p))
+                print("{0} step: {1} accuracy: {2}, Label: {3}, Prediction: {4}".format(datetime.now().isoformat(), temp, acc, l, p))
               
 #              results = ["{0} Label: {1}, Prediction: {2}".format(datetime.now().isoformat(), l, p) for l,p in zip(labels,preds)]
 #              tf_feed.batch_results(results)
