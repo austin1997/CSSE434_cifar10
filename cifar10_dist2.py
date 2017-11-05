@@ -27,6 +27,10 @@ def map_fun(args, ctx):
   cluster_spec = ctx.cluster_spec
   NUM_CLASSES = 10
   IMAGE_PIXELS=32
+  NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
+  NUM_EPOCHS_PER_DECAY = 350.0      # Epochs after which learning rate decays.
+  LEARNING_RATE_DECAY_FACTOR = 0.1  # Learning rate decay factor.
+  INITIAL_LEARNING_RATE = 0.1       # Initial learning rate.
   TOWER_NAME = 'tower'
 
   # Delay PS nodes a bit, since workers seem to reserve GPUs more quickly/reliably (w/o conflict)
@@ -210,8 +214,20 @@ def map_fun(args, ctx):
       # The total loss is defined as the cross entropy loss plus all of the weight
       # decay terms (L2 loss).
       total_loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
+	  global_step = tf.Variable(0)
+      inc = tf.assign_add(global_step, 1, name='increment')
+	  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / batch_size
+	  decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+
+      # Decay the learning rate exponentially based on the number of steps.
+	  lr = tf.train.exponential_decay(INITIAL_LEARNING_RATE,
+                                  global_step,
+                                  decay_steps,
+                                  LEARNING_RATE_DECAY_FACTOR,
+                                  staircase=True)
+	  tf.summary.scalar('learning_rate', lr)
       
-      train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
+      train_step = tf.train.AdamOptimizer(lr).minimize(total_loss)
       correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y_, 1))
       accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
       label = tf.argmax(y_, 1, name="label")
@@ -226,8 +242,7 @@ def map_fun(args, ctx):
       # Merge all the summaries and write them out to
       # /tmp/tensorflow/mnist/logs/mnist_with_summaries (by default)
       merged = tf.summary.merge_all()
-      global_step = tf.Variable(0)
-      inc = tf.assign_add(global_step, 1, name='increment')
+      
 #      saver = tf.train.Saver()
       init_op = tf.global_variables_initializer()
 
