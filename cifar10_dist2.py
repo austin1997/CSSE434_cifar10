@@ -202,7 +202,7 @@ def map_fun(args, ctx):
       print (y_.shape)
       print (logits.shape)
       labels = tf.cast(y_, tf.int64)
-      cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+      cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
           labels=labels, logits=logits, name='cross_entropy_per_example')
       cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
       tf.add_to_collection('losses', cross_entropy_mean)
