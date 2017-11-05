@@ -96,14 +96,14 @@ def writeMNIST(sc, input_images, output, format, num_partitions):
 
 	
 	# create RDDs of vectors
-	imageRDD = sc.parallelize(mergedImage.reshape(shape[0], 32, 32, 3), num_partitions)
+	imageRDD = sc.parallelize(mergedImage.reshape(shape[0], 32*32*3), num_partitions)
 	labelRDD = sc.parallelize(b, num_partitions)
 
 	output_train_images = args.output + "/train" + "/images"
 	output_train_labels = args.output + "/train" + "/labels"
 	
 	# create RDDs of vectors
-	imageRDD = sc.parallelize(images6.reshape(-1, 32, 32, 3), num_partitions)
+	imageRDD = sc.parallelize(images6.reshape(-1, 32*32*3), num_partitions)
 	labelRDD = sc.parallelize(c, num_partitions)
 
 	output_test_images = args.output + "/test" + "/images"
