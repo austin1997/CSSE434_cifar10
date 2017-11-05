@@ -214,18 +214,18 @@ def map_fun(args, ctx):
       # The total loss is defined as the cross entropy loss plus all of the weight
       # decay terms (L2 loss).
       total_loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
-	  global_step = tf.Variable(0)
+      global_step = tf.Variable(0)
       inc = tf.assign_add(global_step, 1, name='increment')
-	  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / batch_size
-	  decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+      num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / batch_size
+      decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
       # Decay the learning rate exponentially based on the number of steps.
-	  lr = tf.train.exponential_decay(INITIAL_LEARNING_RATE,
+      lr = tf.train.exponential_decay(INITIAL_LEARNING_RATE,
                                   global_step,
                                   decay_steps,
                                   LEARNING_RATE_DECAY_FACTOR,
                                   staircase=True)
-	  tf.summary.scalar('learning_rate', lr)
+      tf.summary.scalar('learning_rate', lr)
       
       train_step = tf.train.AdamOptimizer(lr).minimize(total_loss)
       correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y_, 1))
