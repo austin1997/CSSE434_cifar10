@@ -167,9 +167,9 @@ def map_fun(args, ctx):
       # local3
       with tf.variable_scope('local3') as scope:
         # Move everything into depth so we can perform a single matrix multiply.
-        reshape = tf.reshape(pool2, [batch_size, -1])
+        reshape = tf.contrib.layers.flatten(pool2)
         dim = reshape.get_shape()[1].value
-        weights = _variable_with_weight_decay('weights', shape=[8*8, 384],
+        weights = _variable_with_weight_decay('weights', shape=[dim, 384],
                                               stddev=0.04, wd=0.004)
         biases = _variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
         local3 = tf.nn.relu(tf.matmul(reshape, weights) + biases, name=scope.name)
@@ -198,10 +198,10 @@ def map_fun(args, ctx):
       logits = softmax_linear
           
       # Calculate the average cross entropy loss across the batch.
-      labels = tf.reshape(y_, [100, 10])
-      print (labels.shape)
-      print (logits.shape)
-      labels = tf.cast(labels, tf.int64)
+#      labels = tf.reshape(y_, [100, 10])
+#      print (labels.shape)
+#      print (logits.shape)
+      labels = tf.cast(y_, tf.int64)
       cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
           labels=labels, logits=logits, name='cross_entropy_per_example')
       cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
