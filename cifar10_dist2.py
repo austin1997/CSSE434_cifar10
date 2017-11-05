@@ -98,7 +98,7 @@ def map_fun(args, ctx):
           Variable Tensor
         """
         with tf.device('/cpu:0'):
-          dtype = tf.float16 if FLAGS.use_fp16 else tf.float32
+          dtype = tf.float32
           var = tf.get_variable(name, shape, initializer=initializer, dtype=dtype)
         return var
 
@@ -115,7 +115,7 @@ def map_fun(args, ctx):
         Returns:
           Variable Tensor
         """
-        dtype = tf.float16 if FLAGS.use_fp16 else tf.float32
+        dtype = tf.float32
         var = _variable_on_cpu(
               name,
               shape,
