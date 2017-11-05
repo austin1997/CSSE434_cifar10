@@ -65,7 +65,7 @@ def map_fun(args, ctx):
         cluster=cluster)):
 
       print("In a TFCluster.")
-      global_step = tf.contrib.framework.get_or_create_global_step()
+      global_step = tf.train.get_or_create_global_step()
       # Input placeholders
       with tf.name_scope('input'):
         x = tf.placeholder(tf.float32, [None, IMAGE_PIXELS*IMAGE_PIXELS*3], name='x-input')
@@ -270,7 +270,8 @@ def map_fun(args, ctx):
         # perform *synchronous* training.
         step = step + 1
         print (step)
-        print (global_step)
+		temp = sess.run(global_step)
+        print (temp)
         # using feed_dict
         batch_xs, batch_ys = feed_dict(tf_feed.next_batch(batch_size))
         test_xs, test_ys = feed_dict(tf_feed_test.next_batch(batch_size))
@@ -280,7 +281,7 @@ def map_fun(args, ctx):
           if args.mode == "train":
             summary, _, _ = sess.run([merged, train_step, global_step], feed_dict=feed)
             # print accuracy and save model checkpoint to HDFS every 100 steps
-            if (step % 100 == 0 or global_step % 100 == 0):
+            if (step % 100 == 0 or temp % 100 == 0):
               labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys})
               for l,p in zip(labels,preds):
                 print("{0} step: {1} accuracy: {2}, Label: {3}, Prediction: {4}".format(datetime.now().isoformat(), step, acc, l, p))
