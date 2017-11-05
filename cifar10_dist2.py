@@ -19,6 +19,7 @@ def map_fun(args, ctx):
   import numpy
   import tensorflow as tf
   import time
+  import re
 
   worker_num = ctx.worker_num
   job_name = ctx.job_name
