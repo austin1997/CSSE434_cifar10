@@ -281,9 +281,10 @@ def map_fun(args, ctx):
         test_xs, test_ys = feed_dict(tf_feed_test.next_batch(batch_size))
         feed = {x: batch_xs, y_: batch_ys}
 
+        print (len(batch_xs) > 0)
         if len(batch_xs) > 0:
           if args.mode == "train":
-            summary, _, _ = sess.run([merged, train_step, global_step], feed_dict=feed)
+            summary, _ = sess.run([merged, train_step], feed_dict=feed)
             # print accuracy and save model checkpoint to HDFS every 100 steps
             if (step % 100 == 0 or temp % 100 == 0):
               labels, preds, acc = sess.run([label, prediction, accuracy], feed_dict={x: test_xs, y_: test_ys})
