@@ -241,7 +241,7 @@ def map_fun(args, ctx):
 
       # Merge all the summaries and write them out to
       # /tmp/tensorflow/mnist/logs/mnist_with_summaries (by default)
-      merged = tf.summary.merge_all()
+#      merged = tf.summary.merge_all()
       
       saver = tf.train.Saver()
       init_op = tf.global_variables_initializer()
@@ -256,7 +256,7 @@ def map_fun(args, ctx):
       sv = tf.train.Supervisor(is_chief=(task_index == 0),
                                logdir=logdir,
                                init_op=init_op,
-                               summary_op=None,
+ #                              summary_op=None,
                                summary_writer=summary_writer,
                                global_step=global_step,
                                stop_grace_secs=300,
