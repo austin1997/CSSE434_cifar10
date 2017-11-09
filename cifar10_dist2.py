@@ -284,13 +284,13 @@ def map_fun(args, ctx):
         # Run a training step asynchronously.
         # See `tf.train.SyncReplicasOptimizer` for additional details on how to
         # perform *synchronous* training.
-        print (args.steps)
-        print (sv.should_stop())
-        print (tf_feed.should_stop())
+#        print (args.steps)
+#        print (sv.should_stop())
+#        print (tf_feed.should_stop())
         step = step + 1
-        print (step)
+#        print (step)
         temp = sess.run(global_step)
-        print (temp)
+#        print (temp)
         # using feed_dict
         batch_xs, batch_ys = feed_dict(tf_feed.next_batch(batch_size))
         test_xs, test_ys = feed_dict(tf_feed_test.next_batch(batch_size))
