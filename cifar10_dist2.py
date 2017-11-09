@@ -243,7 +243,7 @@ def map_fun(args, ctx):
       # /tmp/tensorflow/mnist/logs/mnist_with_summaries (by default)
       merged = tf.summary.merge_all()
       
-      saver = tf.train.Saver()
+#      saver = tf.train.Saver()
       init_op = tf.global_variables_initializer()
 
     # Create a "supervisor", which oversees the training process and stores model state into HDFS
@@ -260,8 +260,8 @@ def map_fun(args, ctx):
                                summary_writer=summary_writer,
                                global_step=global_step,
                                stop_grace_secs=300,
-                               saver = saver,
-                               save_model_secs=10
+                               saver = None
+#                               save_model_secs=10
                                )
     else:
       sv = tf.train.Supervisor(is_chief=(task_index == 0),
